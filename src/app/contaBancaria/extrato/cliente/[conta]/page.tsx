@@ -30,8 +30,6 @@ export default function Page({ params }: { params: { conta: number } }) {
   const [rgCliente, setRgCliente] = useState("");
   const [sexo, setSexo] = useState("");
   const [atividadeComercial, setAtividadeComercial] = useState("");
-  const [transacoes, setTransacoes] = useState<any[]>([]);
-  const [transacaoSelecionada, setTransacaoSelecionada] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,63 +48,40 @@ export default function Page({ params }: { params: { conta: number } }) {
           .unidadeFederativa.unidadeFederativa
       );
       setBairro(
-        clienteCompleto.dadosCLiente.enderecoPrincipal.endereco.bairro.bairro
+        clienteCompleto.dadosCliente.enderecoPrincipal.endereco.bairro.bairro
       );
       setLogradouro(
-        clienteCompleto.dadosCLiente.enderecoPrincipal.endereco.logradouro
+        clienteCompleto.dadosCliente.enderecoPrincipal.endereco.logradouro
           .logradouro
       );
       setTipoLogradouro(
-        clienteCompleto.dadosCLiente.enderecoPrincipal.endereco.logradouro
+        clienteCompleto.dadosCliente.enderecoPrincipal.endereco.logradouro
           .tipoLogradouro.tipoLogradouro
       );
       setNumeroEndereco(
-        clienteCompleto.dadosCLiente.enderecoPrincipal.numeroEndereco
+        clienteCompleto.dadosCliente.enderecoPrincipal.numeroEndereco
       );
-      if (clienteCompleto.clienteDono.pessoaFisica) {
-        setCpfCliente(clienteCompleto.clienteDono.dadosCliente.cpf);
-      } else setCpfCliente(clienteCompleto.clienteDono.dadosCLiente.cnpj);
+      setComplementoEndereco(
+        clienteCompleto.dadosCliente.enderecoPrincipal.complemento
+      );
+      setSexo(clienteCompleto.dadosCliente.sexo);
+      setRgCliente(clienteCompleto.dadosCliente.rg.numeroRG);
+      if (clienteCompleto.pessoaFisica) {
+        setCpfCliente(clienteCompleto.dadosCliente.cpf);
+      } else setCpfCliente(clienteCompleto.dadosCliente.cnpj);
     };
     fetchData();
   }, [router]);
 
-  /*
-  const cardsTransacoes = transacoes.map((transacao) => (
-    <Card
-      sx={{ margin: "1rem", height: "10rem", backgroundColor: "lavenderblush" }}
-    >
-      <CardActionArea
-        onClick={() => {
-          setTransacaoSelecionada(transacao.idLancamentoTransacao);
-          dadosTeste.transacao = transacao.idLancamentoTransacao;
-          const jsonString = JSON.stringify(dadosTeste);
-          const decodedString = decodeURIComponent(jsonString);
-          router.push("/contaBancaria/transacao/consultar/" + decodedString);
-        }}
-      >
-        <CardContent>
-          <Typography variant="h6">
-            Data da Transação: {transacao.dataLancamento}
-          </Typography>
-          <Typography variant="h6">
-            Código: {transacao.idLancamentoTransacao}
-          </Typography>
-          <Typography variant="h6">
-            Motivo da Transação: {transacao.motivoTransacao.nomeMotivoTransacao}
-          </Typography>
-          <Typography variant="h6">
-            Valor da Transação: R$ {transacao.valor}
-          </Typography>
-        </CardContent>
-      </CardActionArea>
-    </Card>
-  ));
-  */
   return (
     <Grid
       container
       justifyContent={"center"}
-      sx={{ backgroundColor: "white" }}
+      sx={{
+        backgroundColor: "white",
+        paddingTop: "7.5rem",
+        paddingBottom: "7.5rem",
+      }}
       xs={12}
     >
       <Card sx={{ width: "70rem", margin: "1rem" }}>
@@ -139,32 +114,6 @@ export default function Page({ params }: { params: { conta: number } }) {
                 }}
                 InputLabelProps={{ shrink: true }}
                 value={cpfCliente}
-              />
-            </Grid>
-            <Grid item xs={2}>
-              <TextField
-                fullWidth
-                id="standard-basic"
-                label="Sexo do Cliente"
-                variant="standard"
-                InputProps={{
-                  readOnly: true,
-                }}
-                InputLabelProps={{ shrink: true }}
-                value={sexo}
-              />
-            </Grid>
-            <Grid item xs={3}>
-              <TextField
-                fullWidth
-                id="standard-basic"
-                label="Atividade Comercial"
-                variant="standard"
-                InputProps={{
-                  readOnly: true,
-                }}
-                InputLabelProps={{ shrink: true }}
-                value={atividadeComercial}
               />
             </Grid>
             <Grid item xs={2}>
@@ -285,10 +234,6 @@ export default function Page({ params }: { params: { conta: number } }) {
                 InputLabelProps={{ shrink: true }}
                 value={complementoEndereco}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="h5">Transações</Typography>
-              {/*{cardsTransacoes}*/}
             </Grid>
           </Grid>
           <Grid item sx={{ margin: "1rem" }}></Grid>

@@ -19,7 +19,7 @@ export default function Page({ params }: { params: { dadosConta: string } }) {
   const [motivo, setMotivo] = useState("");
   const [nroDocumento, setNroDocumento] = useState("");
   const [valorLancamento, setValorLancamento] = useState("");
-
+  alert("é esse");
   return (
     <Grid
       container
