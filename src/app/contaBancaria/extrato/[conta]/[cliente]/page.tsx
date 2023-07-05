@@ -159,15 +159,8 @@ export default function Page({ params }: { params: { conta: number } }) {
               />
             </Grid>
             <Grid item>
-              <Fab
-                variant="extended"
-                aria-label="add"
-                onClick={() =>
-                  router.push("/contaBancaria/transacao/" + decodedString)
-                }
-              >
+              <Fab variant="extended" aria-label="add">
                 <PersonIcon sx={{ mr: 1 }} />
-                Perfil
               </Fab>
             </Grid>
             <Grid item xs={2}>
