@@ -13,8 +13,6 @@ import AddIcon from "@mui/icons-material/Add";
 import PersonIcon from "@mui/icons-material/Person";
 import { useRouter } from "next/navigation";
 
-import { useState } from "react";
-
 export default function Page() {
   /*
   const [transacoes, setTransacoes] = useState([
@@ -24,6 +22,7 @@ export default function Page() {
     "transacao 4",
   ]);
   */
+
   const router = useRouter();
   const transacoes = [
     ["22/05/2023", 1025646, "Transferindo para o Alicino", 12.55],
@@ -140,6 +139,7 @@ export default function Page() {
             <Grid item>
               <Fab variant="extended" aria-label="add">
                 <PersonIcon sx={{ mr: 1 }} />
+                Perfil
               </Fab>
             </Grid>
             <Grid item xs={2}>

@@ -13,9 +13,43 @@ import AddIcon from "@mui/icons-material/Add";
 import PersonIcon from "@mui/icons-material/Person";
 import { useRouter } from "next/navigation";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchDados } from "@/app/fetch";
 
 export default function Page({ params }: { params: { conta: number } }) {
+  const router = useRouter();
+  const [banco, setBanco] = useState("");
+  const [agencia, setAgencia] = useState("");
+  const [cnpjAgencia, setCnpjAgencia] = useState("");
+  const [cliente, setCliente] = useState("");
+  const [cpfCliente, setCpfCliente] = useState("");
+  const [nroContaCliente, setNroContaCliente] = useState("");
+  const [dataAbertura, setDataAbertura] = useState("");
+  const [saldoAtual, setSaldoAtual] = useState("");
+  const [transacoes, setTransacoes] = useState<any[]>([]);
+  const [transacaoSelecionada, setTransacaoSelecionada] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const extratoCompleto = await fetchDados(
+        "contabancaria/buscar/" + params.conta,
+        "GET"
+      );
+      setBanco(extratoCompleto.agenciaResponsavel.banco.nomeCompleto);
+      setAgencia(extratoCompleto.agenciaResponsavel.nroAgencia);
+      setCnpjAgencia(extratoCompleto.agenciaResponsavel.banco.cnpj);
+      setCliente(extratoCompleto.clienteDono.dadosCliente.nomeCompleto);
+      if (extratoCompleto.clienteDono.pessoaFisica) {
+        setCpfCliente(extratoCompleto.clienteDono.dadosCliente.cpf);
+      } else setCpfCliente(extratoCompleto.clienteDono.dadosCLiente.cnpj);
+      setNroContaCliente(extratoCompleto.nroContaBancaria);
+      setDataAbertura(extratoCompleto.dataAberturaConta);
+      setSaldoAtual(extratoCompleto.saldoAtual);
+      setTransacoes(extratoCompleto.lancamentos);
+    };
+    fetchData();
+  }, [router]);
+
   interface DadosConta {
     banco: string;
     agencia: string;
@@ -29,44 +63,48 @@ export default function Page({ params }: { params: { conta: number } }) {
 
   interface DadosContaTransacao {
     cliente: string;
-    cpfCnpj: number;
-    nroConta: number;
-    saldo: number;
+    cpfCnpj: string;
+    nroConta: string;
+    saldo: string;
+    transacao: string;
   }
 
   const dadosTeste: DadosContaTransacao = {
-    cliente: "Nome do Cliente",
-    cpfCnpj: 123456789, // número do CPF ou CNPJ
-    nroConta: 1234567890, // número da conta
-    saldo: 1000.5, // saldo da conta
+    cliente: cliente,
+    cpfCnpj: cpfCliente, // número do CPF ou CNPJ
+    nroConta: nroContaCliente, // número da conta
+    saldo: saldoAtual, // saldo da conta
+    transacao: transacaoSelecionada,
   };
 
   const jsonString = JSON.stringify(dadosTeste);
   const decodedString = decodeURIComponent(jsonString);
-  console.log(decodedString);
-
-  const router = useRouter();
-  const transacoes = [
-    ["22/05/2023", 1025646, "Transferindo para o Alicino", 12.55],
-    ["04/08/2022", 102, "Coxinha", 10],
-    ["07/12/2023", 1025646, "Comprando chiclete", 45.22],
-  ];
 
   const cardsTransacoes = transacoes.map((transacao) => (
     <Card
       sx={{ margin: "1rem", height: "10rem", backgroundColor: "lavenderblush" }}
     >
-      <CardActionArea>
+      <CardActionArea
+        onClick={() => {
+          setTransacaoSelecionada(transacao.idLancamentoTransacao);
+          dadosTeste.transacao = transacao.idLancamentoTransacao;
+          const jsonString = JSON.stringify(dadosTeste);
+          const decodedString = decodeURIComponent(jsonString);
+          router.push("/contaBancaria/transacao/consultar/" + decodedString);
+        }}
+      >
         <CardContent>
           <Typography variant="h6">
-            Data da Transação: {transacao[0]}
-          </Typography>
-          <Typography variant="h6">Código: {transacao[1]}</Typography>
-          <Typography variant="h6">
-            Motivo da Transação: {transacao[2]}
+            Data da Transação: {transacao.dataLancamento}
           </Typography>
           <Typography variant="h6">
-            Valor da Transação: {transacao[3]}
+            Código: {transacao.idLancamentoTransacao}
+          </Typography>
+          <Typography variant="h6">
+            Motivo da Transação: {transacao.motivoTransacao.nomeMotivoTransacao}
+          </Typography>
+          <Typography variant="h6">
+            Valor da Transação: R$ {transacao.valor}
           </Typography>
         </CardContent>
       </CardActionArea>
@@ -95,7 +133,7 @@ export default function Page({ params }: { params: { conta: number } }) {
                   readOnly: true,
                 }}
                 InputLabelProps={{ shrink: true }}
-                value={"Santander"}
+                value={banco}
               />
             </Grid>
             <Grid item xs={3}>
@@ -108,6 +146,7 @@ export default function Page({ params }: { params: { conta: number } }) {
                   readOnly: true,
                 }}
                 InputLabelProps={{ shrink: true }}
+                value={agencia}
               />
             </Grid>
             <Grid item xs={3}>
@@ -120,6 +159,7 @@ export default function Page({ params }: { params: { conta: number } }) {
                   readOnly: true,
                 }}
                 InputLabelProps={{ shrink: true }}
+                value={cnpjAgencia}
               />
             </Grid>
             <Grid item xs={5}>
@@ -132,6 +172,7 @@ export default function Page({ params }: { params: { conta: number } }) {
                   readOnly: true,
                 }}
                 InputLabelProps={{ shrink: true }}
+                value={cliente}
               />
             </Grid>
             <Grid item xs={2}>
@@ -144,6 +185,7 @@ export default function Page({ params }: { params: { conta: number } }) {
                   readOnly: true,
                 }}
                 InputLabelProps={{ shrink: true }}
+                value={cpfCliente}
               />
             </Grid>
             <Grid item xs={3}>
@@ -156,6 +198,7 @@ export default function Page({ params }: { params: { conta: number } }) {
                   readOnly: true,
                 }}
                 InputLabelProps={{ shrink: true }}
+                value={nroContaCliente}
               />
             </Grid>
             <Grid item>
@@ -163,7 +206,9 @@ export default function Page({ params }: { params: { conta: number } }) {
                 variant="extended"
                 aria-label="add"
                 onClick={() =>
-                  router.push("/contaBancaria/transacao/" + decodedString)
+                  router.push(
+                    "/contaBancaria/extrato/cliente/" + dadosTeste.nroConta
+                  )
                 }
               >
                 <PersonIcon sx={{ mr: 1 }} />
@@ -180,6 +225,7 @@ export default function Page({ params }: { params: { conta: number } }) {
                   readOnly: true,
                 }}
                 InputLabelProps={{ shrink: true }}
+                value={dataAbertura}
               />
             </Grid>
             <Grid item xs={12}>
@@ -207,7 +253,7 @@ export default function Page({ params }: { params: { conta: number } }) {
                 readOnly: true,
               }}
               InputLabelProps={{ shrink: true }}
-              value={"R$" + " 125,55"}
+              value={"R$" + saldoAtual}
             />
           </Grid>
           <Grid item sx={{ margin: "1rem" }}>
